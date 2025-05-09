@@ -34,7 +34,7 @@ Helios's powerful toolkit includes seamless browser automation to navigate the w
 
 ## Project Architecture
 
-![Architecture Diagram](docs/images/diagram.png)
+https://deepwiki.com/cloudone-ai/helios
 
 Helios consists of four main components:
 
