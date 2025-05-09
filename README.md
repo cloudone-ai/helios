@@ -4,7 +4,6 @@
 
 (that acts on your behalf)
 
-![Helios Screenshot](frontend/public/banner.png)
 
 Helios is a fully open source AI assistant that helps you accomplish real-world tasks with ease. Through natural conversation, Helios becomes your digital companion for research, data analysis, and everyday challenges—combining powerful capabilities with an intuitive interface that understands what you need and delivers results.
 
