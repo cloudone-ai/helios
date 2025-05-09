@@ -85,7 +85,7 @@ Helios can be self-hosted on your own infrastructure. Follow these steps to set 
 You'll need the following components:
 - A Supabase project for database and authentication
 - Redis database for caching and session management
-- Daytona sandbox for secure agent execution
+- Docker sandbox for secure agent execution
 - Python 3.11 for the API backend
 - API keys for LLM providers (Anthropic, OpenRouter)
 - Tavily API key for enhanced search capabilities
