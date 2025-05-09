@@ -1,0 +1,26 @@
+# fly.toml app configuration file generated for backend-production-ogog on 2025-04-21T00:36:09+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'backend-production-ogog'
+primary_region = 'bos'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  max_machines_count = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '16gb'
+  cpu_kind = 'performance'
+  cpus = 8
+
+[env]
+  ENV_MODE = "production"

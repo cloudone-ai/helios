@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "helios"
+version = "1.0"
+description = "open source generalist AI Agent"
+authors = ["marko-kraemer <mail@markokraemer.com>"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://helios.myaiportal.com"
+repository = "https://github.com/cloudone-ai/helios"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit-quill = "0.0.3"
+python-dotenv = "1.0.1"
+litellm = "^1.44.0"
+click = "8.1.7"
+questionary = "2.0.1"
+requests = "^2.31.0"
+packaging = "24.1"
+setuptools = "75.3.0"
+pytest = "8.3.3"
+pytest-asyncio = "0.24.0"
+asyncio = "3.4.3"
+altair = "4.2.2"
+prisma = "0.15.0"
+fastapi = "0.110.0"
+uvicorn = "0.27.1"
+python-multipart = "0.0.20"
+redis = "5.2.1"
+upstash-redis = "1.3.0"
+supabase = "^2.15.0"
+pyjwt = "2.10.1"
+exa-py = "^1.9.1"
+e2b-code-interpreter = "^1.2.0"
+certifi = "2024.2.2"
+python-ripgrep = "0.0.6"
+daytona_sdk = "^0.14.0"
+boto3 = "^1.34.0"
+openai = "^1.72.0"
+streamlit = "^1.44.1"
+nest-asyncio = "^1.6.0"
+vncdotool = "^1.2.0"
+tavily-python = "^0.5.4"
+pytesseract = "^0.3.13"
+
+[tool.poetry.scripts]
+agentpress = "agentpress.cli:main"
+
+[[tool.poetry.packages]]
+include = "agentpress"
+
+
+[tool.poetry.group.dev.dependencies]
+daytona-sdk = "^0.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
