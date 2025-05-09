@@ -162,8 +162,10 @@ TAVILY_API_KEY=your_tavily_api_key  # For enhanced search capabilities
 FIRECRAWL_API_KEY=your_firecrawl_api_key  # For web scraping capabilities
 RAPID_API_KEY=
 ```
+3.Download and install the Desktop Docker app or Docker ,then start the docker engine.
+Desktop Docker download URL:https://docs.docker.com/get-started/introduction/get-docker-desktop/
 
-3. **Set up Supabase database**:
+4. **Set up Supabase database**:
 ```bash
 # Login to Supabase CLI
 supabase login
@@ -177,7 +179,7 @@ supabase db push
 
 Then, go to the Supabase web platform again -> choose your project -> Project Settings -> Data API -> And in the "Exposed Schema" add "basejump" if not already there
 
-4. **Configure frontend environment**:
+5. **Configure frontend environment**:
 ```bash
 cd ../frontend
 cp .env.example .env.local  # Create from example if available, or use the following template
@@ -196,7 +198,7 @@ NEXT_PUBLIC_URL="http://localhost:3000"
 NEXT_PUBLIC_BACKEND_URL="http://backend:8000/api"  # Use this when running with Docker Compose
 ```
 
-5. **Install dependencies**:
+6. **Install dependencies**:
 ```bash
 # Install frontend dependencies
 cd frontend
@@ -207,7 +209,7 @@ cd ../backend
 pip install -r requirements.txt
 ```
 
-6. **Start the application**:
+7. **Start the application**:
 
    In one terminal, start the frontend:
 ```bash
@@ -249,7 +251,7 @@ docker compose up
 The Docker Compose setup includes a Redis service that will be used by the backend automatically.
 
 
-7. **Access Helios**:
+8. **Access Helios**:
    - Open your browser and navigate to `http://localhost:3000`
    - Sign up for an account using the Supabase authentication
    - Start using your self-hosted Helios instance!
