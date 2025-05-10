@@ -222,6 +222,11 @@ npm run dev
 cd backend
 python api.py
 ```
+Note:If you encounter a UTF-8 error, run the following command before executing Python api.py.
+Linux 
+  export PYTHONUTF8=1
+Windows
+  set PYTHONUTF8=1
 
 5-6. **Docker Compose Alternative**:
 
