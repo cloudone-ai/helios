@@ -3,6 +3,7 @@
 import { siteConfig } from "@/lib/home";
 import { motion } from "motion/react";
 import React, { useRef, useState } from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface NavItem {
   name: string;
@@ -18,6 +19,7 @@ export function NavMenu() {
   const [isReady, setIsReady] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [isManualScroll, setIsManualScroll] = useState(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     // Initialize with first nav item
@@ -117,20 +119,28 @@ export function NavMenu() {
         className="relative mx-auto flex w-fit rounded-full h-11 px-2 items-center justify-center"
         ref={ref}
       >
-        {navs.map((item) => (
-          <li
-            key={item.name}
-            className={`z-10 cursor-pointer h-full flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeSection === item.href.substring(1)
-                ? "text-primary"
-                : "text-primary/60 hover:text-primary"
-            } tracking-tight`}
-          >
-            <a href={item.href} onClick={(e) => handleClick(e, item)}>
-              {item.name}
-            </a>
-          </li>
-        ))}
+        {navs.map((item) => {
+          // 获取菜单项对应的翻译键名
+          const navKey = item.href.substring(1) === "hero" ? "home" : 
+                        item.href.substring(1) === "use-cases" ? "useCases" :
+                        item.href.substring(1) === "open-source" ? "openSource" : 
+                        item.href.substring(1);
+          
+          return (
+            <li
+              key={item.name}
+              className={`z-10 cursor-pointer h-full flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                activeSection === item.href.substring(1)
+                  ? "text-primary"
+                  : "text-primary/60 hover:text-primary"
+              } tracking-tight`}
+            >
+              <a href={item.href} onClick={(e) => handleClick(e, item)}>
+                {t(`nav.${navKey}`)}
+              </a>
+            </li>
+          );
+        })}
         {isReady && (
           <motion.li
             animate={{ left, width }}

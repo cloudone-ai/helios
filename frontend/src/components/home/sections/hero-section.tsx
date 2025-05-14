@@ -1,5 +1,6 @@
 "use client"
 import { HeroVideoSection } from "@/components/home/sections/hero-video-section";
+import { useTranslation } from '@/i18n/useTranslation';
 import { siteConfig } from "@/lib/home";
 import { ArrowRight, Github, X, AlertCircle } from "lucide-react";
 import { FlickeringGrid } from "@/components/home/ui/flickering-grid";
@@ -32,6 +33,7 @@ const BlurredDialogOverlay = () => (
 const PENDING_PROMPT_KEY = 'pendingAgentPrompt';
 
 export function HeroSection() {
+  const { t } = useTranslation();
   const { hero } = siteConfig;
   const tablet = useMediaQuery("(max-width: 1024px)");
   const [mounted, setMounted] = useState(false);
@@ -238,7 +240,7 @@ export function HeroSection() {
             className="group border border-border/50 bg-background hover:bg-accent/20 hover:border-secondary/40 rounded-full text-sm h-8 px-3 flex items-center gap-2 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 hover:-translate-y-0.5"
           >
             {hero.badgeIcon}
-            <span className="font-medium text-muted-foreground text-xs tracking-wide group-hover:text-primary transition-colors duration-300">{hero.badge}</span>
+            <span className="font-medium text-muted-foreground text-xs tracking-wide group-hover:text-primary transition-colors duration-300">{t('hero.badge')}</span>
             <span className="inline-flex items-center justify-center size-3.5 rounded-full bg-muted/30 group-hover:bg-secondary/30 transition-colors duration-300">
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-muted-foreground group-hover:text-primary">
                 <path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -247,10 +249,10 @@ export function HeroSection() {
           </Link>
           <div className="flex flex-col items-center justify-center gap-5">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium tracking-tighter text-balance text-center">
-              <span className="text-secondary">Helios</span><span className="text-primary">, your AI Employee.</span>
+              <span className="text-secondary">{t('hero.title')}</span>
             </h1>
             <p className="text-base md:text-lg text-center text-muted-foreground font-medium text-balance leading-relaxed tracking-tight">
-              {hero.description}
+              {t('hero.description')}
             </p>
           </div>
           <div className="flex items-center w-full max-w-xl gap-2 flex-wrap justify-center">
@@ -263,7 +265,7 @@ export function HeroSection() {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={hero.inputPlaceholder}
+                    placeholder={t('hero.inputPlaceholder')}
                     className="flex-1 h-12 md:h-14 rounded-full px-2 bg-transparent focus:outline-none text-sm md:text-base py-2"
                     disabled={isSubmitting}
                   />
@@ -275,7 +277,7 @@ export function HeroSection() {
                         : "bg-muted text-muted-foreground"
                     }`}
                     disabled={!inputValue.trim() || isSubmitting}
-                    aria-label="Submit"
+                    aria-label={t('hero.submitButton')}
                   >
                     {isSubmitting ? (
                       <div className="h-4 md:h-5 w-4 md:w-5 border-2 border-secondary-foreground border-t-transparent rounded-full animate-spin" />
@@ -301,7 +303,7 @@ export function HeroSection() {
         <DialogContent className="sm:max-w-md rounded-xl bg-[#F3F4F6] dark:bg-[#F9FAFB]/[0.02] border border-border">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-medium">Sign in to continue</DialogTitle>
+              <DialogTitle className="text-xl font-medium">{t('auth.signInTitle')}</DialogTitle>
               {/* <button 
                 onClick={() => setAuthDialogOpen(false)}
                 className="rounded-full p-1 hover:bg-muted transition-colors"
@@ -310,7 +312,7 @@ export function HeroSection() {
               </button> */}
             </div>
             <DialogDescription className="text-muted-foreground">
-              Sign in or create an account to talk with Helios
+              {t('auth.signInDesc')}
             </DialogDescription>
           </DialogHeader>
           
@@ -334,7 +336,7 @@ export function HeroSection() {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-[#F3F4F6] dark:bg-[#F9FAFB]/[0.02] text-muted-foreground">
-                or continue with email
+                {t('auth.orContinueWithEmail', { defaultValue: 'or continue with email' })}
               </span>
             </div>
           </div>
@@ -346,7 +348,7 @@ export function HeroSection() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="Email address"
+                placeholder={t('auth.emailPlaceholder')}
                 className="h-12 rounded-full bg-background border-border"
                 required
               />
@@ -357,7 +359,7 @@ export function HeroSection() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Password"
+                placeholder={t('auth.passwordPlaceholder')}
                 className="h-12 rounded-full bg-background border-border"
                 required
               />
@@ -367,9 +369,9 @@ export function HeroSection() {
               <SubmitButton
                 formAction={handleSignIn}
                 className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-                pendingText="Signing in..."
+                pendingText={t('auth.signingIn')}
               >
-                Sign in
+                {t('auth.signInButton')}
               </SubmitButton>
               
               <Link
@@ -377,7 +379,7 @@ export function HeroSection() {
                 className="flex h-12 items-center justify-center w-full text-center rounded-full border border-border bg-background hover:bg-accent/20 transition-all"
                 onClick={() => setAuthDialogOpen(false)}
               >
-                Create new account
+                {t('auth.createAccount')}
               </Link>
             </div>
 
@@ -387,17 +389,17 @@ export function HeroSection() {
                 className="text-sm text-primary hover:underline"
                 onClick={() => setAuthDialogOpen(false)}
               >
-                More sign in options
+                {t('auth.moreOptions')}
               </Link>
             </div>
           </form>
 
           <div className="mt-4 text-center text-xs text-muted-foreground">
-            By continuing, you agree to our{' '}
-            <Link href="/terms" className="text-primary hover:underline">
-              Terms of Service
-            </Link>{' '}
-            and{' '}<Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+            {t('auth.agreement').replace('{terms}', '')
+  .replace('{privacy}', '')}
+<Link href="/terms" className="text-primary hover:underline">{t('auth.terms')}</Link>
+{t('auth.agreement').includes('{privacy}') ? ' ' : ''}
+<Link href="/privacy" className="text-primary hover:underline">{t('auth.privacy')}</Link>
           </div>
         </DialogContent>
       </Dialog>

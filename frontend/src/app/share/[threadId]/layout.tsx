@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Shared AI Conversation',
     description: 'View a shared AI conversation from CloudOne Helios',
-    images: ['/kortix-logo.png'],
+    images: ['/cloudone-logo.png'],
   },
 };
 

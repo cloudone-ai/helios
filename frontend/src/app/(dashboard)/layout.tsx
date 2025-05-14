@@ -35,9 +35,12 @@ export default function DashboardLayout({
   // Check authentication status
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/auth')
+      console.log('User not authenticated, redirecting to auth page');
+      window.location.href = '/auth';
+    } else if (!isLoading && user) {
+      console.log('User authenticated in dashboard layout:', user.email);
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading])
 
   // Show loading state while checking auth
   if (isLoading) {

@@ -15,6 +15,8 @@ COPY . .
 # Set environment variable
 ENV PYTHONPATH=/app
 
+ENV PYTHONUTF8=1
+
 ENV ENV_MODE="production"
 
 # Expose the port the app runs on

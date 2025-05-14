@@ -9,25 +9,42 @@ export async function signIn(prevState: any, formData: FormData) {
   const returnUrl = formData.get("returnUrl") as string | undefined;
   
   if (!email || !email.includes('@')) {
-    return { message: "Please enter a valid email address" };
+    return { success: false, message: "Please enter a valid email address" };
   }
   
   if (!password || password.length < 6) {
-    return { message: "Password must be at least 6 characters" };
+    return { success: false, message: "Password must be at least 6 characters" };
   }
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // 登录并获取用户和会话信息
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
   if (error) {
-    return { message: error.message || "Could not authenticate user" };
+    console.error('Sign in error:', error);
+    return { success: false, message: error.message || "Could not authenticate user" };
   }
 
-  return redirect(returnUrl || "/dashboard");
+  // 检查是否成功获取到用户和会话
+  if (!data.user || !data.session) {
+    console.error('Sign in succeeded but no user or session returned');
+    return { success: false, message: "Authentication succeeded but session could not be established" };
+  }
+
+  // 记录登录成功
+  console.log('Sign in successful');
+  
+  // 返回成功状态和目标 URL，让客户端处理导航
+  return { 
+    success: true, 
+    redirectTo: returnUrl || "/dashboard",
+    user: data.user,
+    session: data.session
+  };
 }
 
 export async function signUp(prevState: any, formData: FormData) {

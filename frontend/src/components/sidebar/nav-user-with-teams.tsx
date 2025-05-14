@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/dialog"
 import { createClient } from "@/lib/supabase/client"
 import { useTheme } from "next-themes"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function NavUserWithTeams({
   user,
@@ -67,6 +68,7 @@ export function NavUserWithTeams({
   const { data: accounts } = useAccounts()
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { theme, setTheme } = useTheme()
+  const { t } = useTranslation()
   
   // Prepare personal account and team accounts
   const personalAccount = React.useMemo(() => accounts?.find(account => account.personal_account), [accounts])
@@ -198,7 +200,7 @@ export function NavUserWithTeams({
               {personalAccount && (
                 <>
                   <DropdownMenuLabel className="text-muted-foreground text-xs">
-                    Personal Account
+                    {t('account.personalAccount')}
                   </DropdownMenuLabel>
                   <DropdownMenuItem
                     key={personalAccount.account_id}
@@ -224,7 +226,7 @@ export function NavUserWithTeams({
               {teamAccounts?.length > 0 && (
                 <>
                   <DropdownMenuLabel className="text-muted-foreground text-xs mt-2">
-                    Teams
+                    {t('account.teams')}
                   </DropdownMenuLabel>
                   {teamAccounts.map((team, index) => (
                     <DropdownMenuItem
@@ -270,27 +272,27 @@ export function NavUserWithTeams({
                 <DropdownMenuItem asChild>
                   <Link href="/settings/billing">
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Billing
+                    {t('account.billing')}
                   </Link>
                 </DropdownMenuItem>
                 {/* <DropdownMenuItem asChild>
                   <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                    {t('account.settings')}
                   </Link>
                 </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
                   <div className="flex items-center gap-2">
                     <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                     <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span>Theme</span>
+                    <span>{t('account.theme')}</span>
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                {t('account.logOut')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

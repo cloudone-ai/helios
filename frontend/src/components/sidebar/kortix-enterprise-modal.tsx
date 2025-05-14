@@ -10,20 +10,22 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import Image from "next/image"
 import Cal, { getCalApi } from "@calcom/embed-react"
 import { useTheme } from "next-themes"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function KortixProcessModal() {
   const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const { resolvedTheme } = useTheme()
   const isDarkMode = resolvedTheme === "dark"
-  
+  const { t } = useTranslation()
+
   useEffect(() => {
     (async function() {
       const cal = await getCalApi({"namespace": "enterprise-demo"})
       cal("ui", {"hideEventTypeDetails": true, "layout": "month_view"})
     })()
   }, [])
-  
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -32,19 +34,19 @@ export function KortixProcessModal() {
           size="sm" 
           className="w-full text-xs"
         >
-          Learn More
+          {t('sidebar.learnMore')}
         </Button>
       </DialogTrigger>
       <DialogContent className="p-0 gap-0 border-none max-w-[70vw] rounded-xl overflow-hidden">
-        <DialogTitle className="sr-only">Custom AI Employees for your Business.</DialogTitle>
+        <DialogTitle className="sr-only">{t('enterpriseModal.title')}</DialogTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 h-[800px]">
           {/* Info Panel */}
           <div className="p-8 flex flex-col bg-white dark:bg-black relative h-full overflow-y-auto border-r border-gray-200 dark:border-gray-800">
             <div className="relative z-10 flex flex-col h-full">
               <div className="mb-8 mt-0 flex-shrink-0">
                 <Image 
-                  src={isDarkMode ? "/kortix-logo-white.svg" : "/kortix-logo.svg"} 
-                  alt="Kortix Logo" 
+                  src={isDarkMode ? "/cloudone-logo-white.svg" : "/cloudone-logo.svg"} 
+                  alt="CloudOne Logo" 
                   width={60} 
                   height={21} 
                   className="h-6 w-auto"
@@ -52,66 +54,66 @@ export function KortixProcessModal() {
               </div>
               
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-4 text-foreground flex-shrink-0">
-                Custom AI Employees for your Business
+                {t('enterpriseModal.title')}
               </h2>
               <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-lg flex-shrink-0">
-                Create custom AI employees for your business based on your human employees data.
+                {t('enterpriseModal.description')}
               </p>
               
               <div className="space-y-8 mb-auto flex-shrink-0">
                 <div className="transition-all duration-300 hover:translate-x-1 group">
                   <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
                     <span className="bg-primary text-primary-foreground w-7 h-7 rounded-full inline-flex items-center justify-center mr-3 text-sm group-hover:shadow-md transition-all duration-300">1</span>
-                    <span>Record</span>
+                    <span>{t('enterpriseModal.record')}</span>
                   </h3>
                   <p className="text-base text-muted-foreground ml-10">
-                    We record what employees do to understand their workflows and tasks.
+                    {t('enterpriseModal.recordDesc')}
                   </p>
                 </div>
                 
                 <div className="transition-all duration-300 hover:translate-x-1 group">
                   <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
                     <span className="bg-primary text-primary-foreground w-7 h-7 rounded-full inline-flex items-center justify-center mr-3 text-sm group-hover:shadow-md transition-all duration-300">2</span>
-                    <span>Train</span>
+                    <span>{t('enterpriseModal.train')}</span>
                   </h3>
                   <p className="text-base text-muted-foreground ml-10">
-                    AI is trained on the captured data to learn the tasks and decision-making.
+                    {t('enterpriseModal.trainDesc')}
                   </p>
                 </div>
                 
                 <div className="transition-all duration-300 hover:translate-x-1 group">
                   <h3 className="text-base md:text-lg font-medium mb-3 flex items-center">
                     <span className="bg-primary text-primary-foreground w-7 h-7 rounded-full inline-flex items-center justify-center mr-3 text-sm group-hover:shadow-md transition-all duration-300">3</span>
-                    <span>Automate</span>
+                    <span>{t('enterpriseModal.automate')}</span>
                   </h3>
                   <p className="text-base text-muted-foreground ml-10">
-                    AI agents automate tasks previously done by humans, with continuous learning and improvement.
+                    {t('enterpriseModal.automateDesc')}
                   </p>
                 </div>
               </div>
               
               <div className="border-t border-gray-200 dark:border-gray-800 pt-6 mt-6 flex-shrink-0">
-                <p className="text-base font-medium mb-3">Key Benefits</p>
+                <p className="text-base font-medium mb-3">{t('enterpriseModal.keyBenefits')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <p className="text-sm text-muted-foreground">Reduce operational costs</p>
+                    <p className="text-sm text-muted-foreground">{t('enterpriseModal.reduceCosts')}</p>
                   </div>
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <p className="text-sm text-muted-foreground">Increase workflow efficiency</p>
+                    <p className="text-sm text-muted-foreground">{t('enterpriseModal.increaseEfficiency')}</p>
                   </div>
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <p className="text-sm text-muted-foreground">Improve task accuracy</p>
+                    <p className="text-sm text-muted-foreground">{t('enterpriseModal.improveAccuracy')}</p>
                   </div>
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <p className="text-sm text-muted-foreground">Scale operations seamlessly</p>
+                    <p className="text-sm text-muted-foreground">{t('enterpriseModal.scaleOperations')}</p>
                   </div>
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                    <p className="text-sm text-muted-foreground">24/7 productivity</p>
+                    <p className="text-sm text-muted-foreground">{t('enterpriseModal.productivity')}</p>
                   </div>
                 </div>
               </div>

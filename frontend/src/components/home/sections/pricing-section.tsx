@@ -4,7 +4,8 @@ import { SectionHeader } from "@/components/home/section-header";
 import { siteConfig } from "@/lib/home";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useTranslation } from '@/i18n/useTranslation';
 import { Github, GitFork, File, Terminal } from "lucide-react";
 import Link from "next/link";
 
@@ -15,6 +16,7 @@ interface TabsProps {
 }
 
 function PricingTabs({ activeTab, setActiveTab, className }: TabsProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -52,7 +54,7 @@ function PricingTabs({ activeTab, setActiveTab, className }: TabsProps) {
               activeTab === tab ? "text-primary" : "text-muted-foreground",
             )}
           >
-            {tab === "cloud" ? "Cloud" : "Self-hosted"}
+            {tab === "cloud" ? t('pricing.cloud') : t('pricing.selfHosted')}
           </span>
         </button>
       ))}
@@ -61,6 +63,7 @@ function PricingTabs({ activeTab, setActiveTab, className }: TabsProps) {
 }
 
 export function PricingSection() {
+  const { t } = useTranslation();
   const [deploymentType, setDeploymentType] = useState<"cloud" | "self-hosted">(
     "cloud",
   );
@@ -117,15 +120,15 @@ export function PricingSection() {
       <div className="flex flex-col gap-6">
         <div className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-secondary/10 text-secondary px-4">
           <Github className="h-5 w-5" />
-          <span className="text-sm font-medium">100% Open Source</span>
+          <span className="text-sm font-medium">{t('pricing.openSource')}</span>
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-2xl font-semibold tracking-tight">
-            Self-Hosted Version
+          <h3 className="text-2xl font-semibold tracking-tight">{t('pricing.selfHostedTitle')}
+            
           </h3>
           <p className="text-muted-foreground">
-            Set up and run the platform on your own infrastructure with complete control over your data and deployment.
+            {t('pricing.selfHostedDesc')}
           </p>
         </div>
         
@@ -230,7 +233,7 @@ export function PricingSection() {
             className="inline-flex h-11 items-center justify-center gap-2 text-sm font-medium tracking-wide rounded-full bg-primary text-white px-6 shadow-md hover:bg-primary/90 transition-all"
           >
             <Github className="h-4 w-4" />
-            View on GitHub
+            {t('openSource.viewOnGithub')}
           </Link>
           <Link 
             href="#"
@@ -250,10 +253,10 @@ export function PricingSection() {
     >
       <SectionHeader>
         <h2 className="text-3xl md:text-4xl font-medium tracking-tighter text-center text-balance">
-          General Intelligence available today
+          {t('pricing.title')}
         </h2>
         <p className="text-muted-foreground text-center text-balance font-medium">
-          You can self-host Helios or use our cloud for managed service.
+          {t('pricing.subtitle')}
         </p>
       </SectionHeader>
       <div className="relative w-full h-full">
@@ -282,19 +285,19 @@ export function PricingSection() {
                     {tier.name}
                     {tier.isPopular && (
                       <span className="bg-gradient-to-b from-secondary/50 from-[1.92%] to-secondary to-[100%] text-white h-6 inline-flex w-fit items-center justify-center px-2 rounded-full text-sm ml-2 shadow-[0px_6px_6px_-3px_rgba(0,0,0,0.08),0px_3px_3px_-1.5px_rgba(0,0,0,0.08),0px_1px_1px_-0.5px_rgba(0,0,0,0.08),0px_0px_0px_1px_rgba(255,255,255,0.12)_inset,0px_1px_0px_0px_rgba(255,255,255,0.12)_inset]">
-                      Popular
+                      {t('pricing.popular')}
                     </span>
                   )}
                   </p>
                   <div className="flex items-baseline mt-2">
                     <PriceDisplay tier={tier} />
                     <span className="ml-2">
-                      {tier.price !== "$0" ? "/month" : ""}
+                      {tier.price !== "$0" ? t('pricing.perMonth') : ""}
                     </span>
                   </div>
                   <p className="text-sm mt-2">{tier.description}</p>
                   <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary/10 border-primary/20 text-primary w-fit">
-                    {tier.hours}/month
+                    {tier.hours}{t('pricing.hoursPerMonth')}
                   </div>
                 </div>
 
@@ -308,7 +311,7 @@ export function PricingSection() {
                           : `${tier.buttonColor} shadow-[0px_1px_2px_0px_rgba(255,255,255,0.16)_inset,0px_3px_3px_-1.5px_rgba(16,24,40,0.24),0px_1px_1px_-0.5px_rgba(16,24,40,0.20)]`
                       }`}
                     >
-                      {tier.buttonText}
+                      {t('pricing.hireHelios')}
                     </Link>
                   ) : (
                     <button

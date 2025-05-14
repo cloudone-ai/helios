@@ -9,6 +9,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/home";
 import { isLocalMode } from "@/lib/config";
+import { useTranslation } from "@/i18n/useTranslation";
 
 // Create SUBSCRIPTION_PLANS using stripePriceId from siteConfig
 export const SUBSCRIPTION_PLANS = {
@@ -53,6 +54,7 @@ export function PlanComparison({
   className = "",
   isCompact = false
 }: PlanComparisonProps) {
+  const { t } = useTranslation();
   const [currentPlanId, setCurrentPlanId] = useState<string | undefined>();
 
   useEffect(() => {
@@ -117,13 +119,13 @@ export function PlanComparison({
                     <div className="flex items-center gap-1">
                       <h3 className="font-medium">{tier.name}</h3>
                       {tier.isPopular && (
-                        <span className="bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5 rounded-full">
-                          Popular
+                        <span className="ml-1.5 inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium bg-secondary/10 text-secondary">
+                          {t('billing.popular')}
                         </span>
                       )}
                       {isCurrentPlan && (
                         <span className="bg-secondary/10 text-secondary text-[10px] font-medium px-1.5 py-0.5 rounded-full">
-                          Current
+                          {t('billing.current')}
                         </span>
                       )}
                     </div>
@@ -134,11 +136,11 @@ export function PlanComparison({
                     <div className="flex items-baseline">
                       <PriceDisplay tier={tier} isCompact={true} />
                       <span className="text-xs text-muted-foreground ml-1">
-                        {tier.price !== "$0" ? "/mo" : ""}
+                        {tier.price !== "$0" ? t('billing.perMonth') : ""}
                       </span>
                     </div>
                     <div className="text-[10px] text-muted-foreground mt-0.5">
-                      {tier.hours}/month
+                      {tier.hours} {t('billing.hoursPerMonth')}
                     </div>
                   </div>
                 </div>
@@ -161,13 +163,13 @@ export function PlanComparison({
                   <h3 className="text-lg font-medium">{tier.name}</h3>
                   <div className="flex gap-1">
                     {tier.isPopular && (
-                      <span className="bg-primary/10 text-primary text-xs font-medium px-2 py-0.5 rounded-full">
-                        Popular
+                      <span className="ml-1.5 inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium bg-secondary/10 text-secondary">
+                        {t('billing.popular')}
                       </span>
                     )}
                     {isCurrentPlan && (
-                      <span className="bg-secondary/10 text-secondary text-xs font-medium px-2 py-0.5 rounded-full">
-                        Current
+                      <span className="bg-secondary/10 text-secondary text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+                        {t('billing.current')}
                       </span>
                     )}
                   </div>
@@ -176,12 +178,12 @@ export function PlanComparison({
                 <div className="flex items-baseline mb-1">
                   <PriceDisplay tier={tier} />
                   <span className="text-muted-foreground ml-2">
-                    {tier.price !== "$0" ? "/month" : ""}
+                    {tier.price !== "$0" ? t('billing.perMonth') : ""}
                   </span>
                 </div>
                 
                 <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-secondary/10 text-secondary mb-4">
-                  {tier.hours}/month
+                  {tier.hours} {t('billing.hoursPerMonth')}
                 </div>
                 
                 <p className="text-muted-foreground mb-6">{tier.description}</p>
@@ -235,7 +237,7 @@ export function PlanComparison({
                       : tier.buttonColor
                   )}
                 >
-                  {isCurrentPlan ? "Current Plan" : (tier.name === "Free" ? tier.buttonText : "Upgrade")}
+                  {isCurrentPlan ? t('billing.currentPlan') : (tier.name === "Free" ? tier.buttonText : t('billing.upgrade'))}
                 </SubmitButton>
               ) : (
                 <Button
@@ -251,7 +253,7 @@ export function PlanComparison({
                   disabled={isCurrentPlan}
                   onClick={() => onPlanSelect?.(SUBSCRIPTION_PLANS[tier.name.toUpperCase() as keyof typeof SUBSCRIPTION_PLANS])}
                 >
-                  {isCurrentPlan ? "Current Plan" : (tier.name === "Free" ? tier.buttonText : "Upgrade")}
+                  {isCurrentPlan ? t('billing.currentPlan') : (tier.name === "Free" ? tier.buttonText : t('billing.upgrade'))}
                 </Button>
               )}
             </form>

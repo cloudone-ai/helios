@@ -23,6 +23,7 @@ import { BillingErrorAlert } from '@/components/billing/usage-limit-alert';
 import { SUBSCRIPTION_PLANS } from '@/components/billing/plan-comparison';
 import { createClient } from '@/lib/supabase/client';
 import { isLocalMode } from "@/lib/config";
+import { useTranslation } from "@/i18n/useTranslation";
 
 import { UnifiedMessage, ParsedContent, ParsedMetadata, ThreadParams } from '@/components/thread/types';
 import { getToolIcon, extractPrimaryParam, safeJsonParse } from '@/components/thread/utils';
@@ -203,6 +204,7 @@ export default function ThreadPage({ params }: { params: Promise<ThreadParams> }
   const unwrappedParams = React.use(params);
   const threadId = unwrappedParams.threadId;
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   
   const router = useRouter();
   const [messages, setMessages] = useState<UnifiedMessage[]>([]);
@@ -1517,7 +1519,7 @@ export default function ThreadPage({ params }: { params: Promise<ThreadParams> }
                     <div ref={latestMessageRef}>
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center overflow-hidden bg-primary/10">
-                          <Image src="/CloudOne-symbol.svg" alt="Helios" width={14} height={14} className="object-contain"/>
+                          <Image src="/CloudOne-symbol.svg" alt={t('agentChat.heliosComputer')} width={14} height={14} className="object-contain"/>
                         </div>
                         <div className="flex-1 space-y-2">
                           <div className="max-w-[90%] px-4 py-3 text-sm">
@@ -1560,7 +1562,7 @@ export default function ThreadPage({ params }: { params: Promise<ThreadParams> }
             value={newMessage}
             onChange={setNewMessage}
             onSubmit={handleSubmitMessage}
-            placeholder="Ask Helios anything..."
+            placeholder={t('agentChat.askHelios')}
             loading={isSending}
             disabled={isSending || agentStatus === 'running' || agentStatus === 'connecting'}
             isAgentRunning={agentStatus === 'running' || agentStatus === 'connecting'}

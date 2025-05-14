@@ -4,6 +4,7 @@ import React, { useState, Suspense, useEffect, useRef } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from 'next/navigation';
 import { Menu } from "lucide-react";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ChatInput, ChatInputHandles } from '@/components/thread/chat-input';
 import { initiateAgent, createThread, addUserMessage, startAgent, createProject } from "@/lib/api";
 import { generateThreadName } from "@/lib/actions/threads";
@@ -31,6 +32,7 @@ function DashboardContent() {
   const { data: accounts } = useAccounts();
   const personalAccount = accounts?.find(account => account.personal_account);
   const chatInputRef = useRef<ChatInputHandles>(null);
+  const { t } = useTranslation();
 
   const handleSubmit = async (message: string, options?: { model_name?: string; enable_thinking?: boolean }) => {
     if ((!message.trim() && !(chatInputRef.current?.getPendingFiles().length)) || isSubmitting) return;
@@ -230,7 +232,7 @@ function DashboardContent() {
                 onClick={() => setOpenMobile(true)}
               >
                 <Menu className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t('dashboard.openMenu')}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Open menu</TooltipContent>
@@ -240,15 +242,15 @@ function DashboardContent() {
 
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[560px] max-w-[90%]">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-medium text-foreground mb-2">Hey </h1>
-          <h2 className="text-2xl text-muted-foreground">What would you like Helios to do today?</h2>
+          <h1 className="text-4xl font-medium text-foreground mb-2">{t('dashboard.greeting')} </h1>
+          <h2 className="text-2xl text-muted-foreground">{t('dashboard.prompt')}</h2>
         </div>
         
         <ChatInput 
           ref={chatInputRef}
           onSubmit={handleSubmit} 
           loading={isSubmitting}
-          placeholder="Describe what you need help with..."
+          placeholder={t('dashboard.inputPlaceholder')}
           value={inputValue}
           onChange={setInputValue}
           hideAttachments={false}
@@ -269,6 +271,8 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
+  
   return (
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center h-full w-full">
@@ -280,7 +284,7 @@ export default function DashboardPage() {
           
           <Skeleton className="w-full h-[100px] rounded-xl" />
           <div className="flex justify-center mt-3">
-            <Skeleton className="h-5 w-16" />
+            <div className="text-muted-foreground text-sm">{t('dashboard.loading')}</div>
           </div>
         </div>
       </div>

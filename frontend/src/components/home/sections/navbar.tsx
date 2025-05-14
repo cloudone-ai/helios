@@ -3,6 +3,8 @@
 import { Icons } from "@/components/home/icons";
 import { NavMenu } from "@/components/home/nav-menu";
 import { ThemeToggle } from "@/components/home/theme-toggle";
+import { LanguageSwitcher } from "@/components/home/language-switcher";
+import { useTranslation } from "@/i18n/useTranslation";
 import { siteConfig } from "@/lib/home";
 import { cn } from "@/lib/utils";
 import { Menu, X, Github } from "lucide-react";
@@ -61,6 +63,7 @@ export function Navbar() {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -148,6 +151,7 @@ export function Navbar() {
                 >
                   <Github className="size-[18px]" />
                 </Link> */}
+                <LanguageSwitcher />
                 {user ? (
                   <Link
                     className="bg-secondary h-8 hidden md:flex items-center justify-center text-sm font-normal tracking-wide rounded-full text-primary-foreground dark:text-secondary-foreground w-fit px-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] border border-white/[0.12]"
@@ -160,7 +164,7 @@ export function Navbar() {
                     className="bg-secondary h-8 hidden md:flex items-center justify-center text-sm font-normal tracking-wide rounded-full text-primary-foreground dark:text-secondary-foreground w-fit px-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] border border-white/[0.12]"
                     href="/auth"
                   >
-                    Hire Helios
+                    {t('pricing.hireHelios')}
                   </Link>
                 )}
               </div>
@@ -227,32 +231,40 @@ export function Navbar() {
                   variants={drawerMenuContainerVariants}
                 >
                   <AnimatePresence>
-                    {siteConfig.nav.links.map((item) => (
-                      <motion.li
-                        key={item.id}
-                        className="p-2.5 border-b border-border last:border-b-0"
-                        variants={drawerMenuVariants}
-                      >
-                        <a
-                          href={item.href}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const element = document.getElementById(
-                              item.href.substring(1),
-                            );
-                            element?.scrollIntoView({ behavior: "smooth" });
-                            setIsDrawerOpen(false);
-                          }}
-                          className={`underline-offset-4 hover:text-primary/80 transition-colors ${
-                            activeSection === item.href.substring(1)
-                              ? "text-primary font-medium"
-                              : "text-primary/60"
-                          }`}
+                    {siteConfig.nav.links.map((item) => {
+                      // 获取菜单项对应的翻译键名
+                      const navKey = item.href.substring(1) === "hero" ? "home" : 
+                                    item.href.substring(1) === "use-cases" ? "useCases" :
+                                    item.href.substring(1) === "open-source" ? "openSource" : 
+                                    item.href.substring(1);
+                      
+                      return (
+                        <motion.li
+                          key={item.id}
+                          className="p-2.5 border-b border-border last:border-b-0"
+                          variants={drawerMenuVariants}
                         >
-                          {item.name}
-                        </a>
-                      </motion.li>
-                    ))}
+                          <a
+                            href={item.href}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const element = document.getElementById(
+                                item.href.substring(1),
+                              );
+                              element?.scrollIntoView({ behavior: "smooth" });
+                              setIsDrawerOpen(false);
+                            }}
+                            className={`underline-offset-4 hover:text-primary/80 transition-colors ${
+                              activeSection === item.href.substring(1)
+                                ? "text-primary font-medium"
+                                : "text-primary/60"
+                            }`}
+                          >
+                            {t(`nav.${navKey}`)}
+                          </a>
+                        </motion.li>
+                      );
+                    })}
                   </AnimatePresence>
                 </motion.ul>
 
@@ -270,10 +282,11 @@ export function Navbar() {
                       href="/auth"
                       className="bg-secondary h-8 flex items-center justify-center text-sm font-normal tracking-wide rounded-full text-primary-foreground dark:text-secondary-foreground w-full px-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] border border-white/[0.12] hover:bg-secondary/80 transition-all ease-out active:scale-95"
                     >
-                      Hire Helios
+                      {t('pricing.hireHelios')}
                     </Link>
                   )}
                   <div className="flex justify-between">
+                    <LanguageSwitcher />
                     <ThemeToggle />
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProjects, getThreads, type Project } from "@/lib/api";
+import { useTranslation } from "@/i18n/useTranslation";
 
 // Define the Agent type that combines project and thread data
 interface Agent {
@@ -22,6 +23,7 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function loadAgents() {
@@ -65,7 +67,7 @@ export default function AgentsPage() {
       <div className="space-y-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>{t('agents.error')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
@@ -76,15 +78,15 @@ export default function AgentsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Agents</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('agents.title')}</h1>
           <p className="text-muted-foreground mt-2">
-            Create and manage your AI agents
+            {t('agents.description')}
           </p>
         </div>
         <Button asChild>
           <Link href="/agents/new">
             <PlusCircle className="mr-2 h-4 w-4" />
-            New Agent
+            {t('agents.newAgent')}
           </Link>
         </Button>
       </div>
@@ -107,14 +109,14 @@ export default function AgentsPage() {
       ) : agents.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center border rounded-md">
           <MessagesSquare className="h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold mb-2">No agents yet</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('agents.noAgentsTitle')}</h2>
           <p className="text-muted-foreground max-w-md mb-4">
-            Create your first agent to start automating tasks and getting help from AI.
+            {t('agents.noAgentsDesc')}
           </p>
           <Button asChild>
             <Link href="/agents/new">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create your first agent
+              {t('agents.createFirstAgent')}
             </Link>
           </Button>
         </div>
@@ -125,7 +127,7 @@ export default function AgentsPage() {
               <div className="flex flex-col">
                 <h3 className="font-medium">{agent.name}</h3>
                 <p className="text-sm text-muted-foreground truncate mb-3">
-                  {agent.description || "No description provided"}
+                  {agent.description || t('agents.noDescription')}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-muted-foreground">
@@ -139,7 +141,7 @@ export default function AgentsPage() {
                           : `/dashboard`
                       }
                     >
-                      Continue Conversation
+                      {t('agents.continueConversation')}
                     </Link>
                   </Button>
                 </div>

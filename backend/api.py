@@ -147,7 +147,7 @@ async def log_requests_middleware(request: Request, call_next):
 #     return await call_next(request)
 
 # Define allowed origins based on environment
-allowed_origins = ["https://helios.myaiportal.com", "https://www.myaiportal.com", "https://staging.myaiportal.com", "http://localhost:3000"]
+allowed_origins = ["https://helios.myaiportal.net", "https://www.myaiportal.net", "https://staging.myaiportal.net", "http://localhost:3000"]
 
 # Add staging-specific origins
 if config.ENV_MODE == EnvMode.STAGING:

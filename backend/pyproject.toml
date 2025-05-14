@@ -5,7 +5,7 @@ description = "open source generalist AI Agent"
 authors = ["marko-kraemer <mail@markokraemer.com>"]
 readme = "README.md"
 license = "MIT"
-homepage = "https://helios.myaiportal.com"
+homepage = "https://helios.myaiportal.net"
 repository = "https://github.com/cloudone-ai/helios"
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -8,7 +8,10 @@ CREATE TABLE projects (
     sandbox JSONB DEFAULT '{}'::jsonb,
     is_public BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    category TEXT,
+    imgurl TEXT,
+    icon TEXT
 );
 
 -- Create threads table

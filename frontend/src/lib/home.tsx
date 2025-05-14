@@ -1063,26 +1063,26 @@ export const siteConfig = {
   },
   footerLinks: [
     {
-      title: "CloudOne",
+      title: "company",
       links: [
-        { id: 1, title: "About", url: "https://CloudOne.ai" },
+        { id: 1, title: "About", url: "https://www.myaiportal.net" },
         { id: 3, title: "Contact", url: "mailto:info@cloud1soft.com" },
-        { id: 4, title: "Careers", url: "https://www.myaiportal.com/careers" },
+        { id: 4, title: "Careers", url: "https://www.myaiportal.net/careers" },
       ],
     },
     {
-      title: "Resources",
+      title: "resources",
       links: [
-        { id: 5, title: "Documentation", url: "https://github.com/cloudone-ai/helios" },
-        { id: 7, title: "Discord", url: "" },
+        { id: 5, title: "Documentation", url: "https://deepwiki.com/cloudone-ai/helios" },
+        { id: 7, title: "Discord", url: "https://discord.com/channels/cloudoneai" },
         { id: 8, title: "GitHub", url: "https://github.com/cloudone-ai/helios" },
       ],
     },
     {
-      title: "Legal",
+      title: "legal",
       links: [
-        { id: 9, title: "Privacy Policy", url: "https://helios.myaiportal.com/legal?tab=privacy" },
-        { id: 10, title: "Terms of Service", url: "https://helios.myaiportal.com/legal?tab=terms" },
+        { id: 9, title: "Privacy Policy", url: "/legal?tab=privacy" },
+        { id: 10, title: "Terms of Service", url: "/legal?tab=terms" },
         { id: 11, title: "License Apache 2.0", url: "https://github.com/cloudone-ai/helios/blob/main/LICENSE" },
       ],
     },
@@ -1219,7 +1219,7 @@ export const siteConfig = {
     {
       id: "seo-analysis",
       title: "SEO Analysis",
-      description: "Based on my website helios.myaiportal.com, generate an SEO report analysis, find top-ranking pages by keyword clusters, and identify topics I'm missing.",
+      description: "Based on my website helios.myaiportal.net, generate an SEO report analysis, find top-ranking pages by keyword clusters, and identify topics I'm missing.",
       category: "marketing",
       featured: true,
       icon: (

@@ -12,6 +12,7 @@ import { signIn, signUp, forgotPassword } from "./actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, X, CheckCircle, AlertCircle, MailCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { useTranslation } from "@/i18n/useTranslation";
 
 import {
   Dialog,
@@ -26,6 +27,7 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation();
   const mode = searchParams.get("mode");
   const returnUrl = searchParams.get("returnUrl");
   const message = searchParams.get("message");
@@ -102,7 +104,19 @@ function LoginContent() {
     if (returnUrl) {
       formData.append("returnUrl", returnUrl);
     }
-    return signIn(prevState, formData);
+    
+    // 调用登录 action
+    const result = await signIn(prevState, formData);
+    
+    // 检查是否登录成功
+    if (result.success) {
+      // 如果登录成功，直接在客户端进行导航
+      window.location.replace(result.redirectTo);
+      return { message: "Redirecting..." };
+    }
+    
+    // 如果登录失败，返回错误信息
+    return result;
   };
 
   const handleSignUp = async (prevState: any, formData: FormData) => {
@@ -320,14 +334,14 @@ function LoginContent() {
                 className="group border border-border/50 bg-background hover:bg-accent/20 rounded-full text-sm h-8 px-3 flex items-center gap-2 transition-all duration-200 shadow-sm mb-6"
               >
                 <ArrowLeft className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium text-muted-foreground text-xs tracking-wide">Back to home</span>
+                <span className="font-medium text-muted-foreground text-xs tracking-wide">{t('auth.backToHome')}</span>
               </Link>
               
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tighter text-center text-balance text-primary">
-                {isSignUp ? "Join Helios" : "Welcome back"}
+                {isSignUp ? t('auth.joinHelios') : t('auth.welcomeBack')}
               </h1>
               <p className="text-base md:text-lg text-center text-muted-foreground font-medium text-balance leading-relaxed tracking-tight mt-2 mb-6">
-                {isSignUp ? "Create your account and start building with AI" : "Sign in to your account to continue"}
+                {isSignUp ? t('auth.signUpDesc') : t('auth.signInDesc')}
               </p>
             </div>
           </div>
@@ -355,7 +369,7 @@ function LoginContent() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-[#F3F4F6] dark:bg-[#F9FAFB]/[0.02] text-muted-foreground">
-                    or continue with email
+                    {t('auth.continueWithEmail')}
                   </span>
                 </div>
               </div>
@@ -367,7 +381,7 @@ function LoginContent() {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="Email address"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="h-12 rounded-full bg-background border-border"
                     required
                   />
@@ -378,7 +392,7 @@ function LoginContent() {
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="Password"
+                    placeholder={t('auth.passwordPlaceholder')}
                     className="h-12 rounded-full bg-background border-border"
                     required
                   />
@@ -390,7 +404,7 @@ function LoginContent() {
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
-                      placeholder="Confirm password"
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
                       className="h-12 rounded-full bg-background border-border"
                       required
                     />
@@ -403,16 +417,16 @@ function LoginContent() {
                       <SubmitButton
                         formAction={handleSignIn}
                         className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-                        pendingText="Signing in..."
+                        pendingText={t('auth.signingIn')}
                       >
-                        Sign in
+                        {t('auth.signIn')}
                       </SubmitButton>
                       
                       <Link
                         href={`/auth?mode=signup${returnUrl ? `&returnUrl=${returnUrl}` : ''}`}
                         className="flex h-12 items-center justify-center w-full text-center rounded-full border border-border bg-background hover:bg-accent/20 transition-all"
                       >
-                        Create new account
+                        {t('auth.createAccount')}
                       </Link>
                     </>
                   ) : (
@@ -420,16 +434,16 @@ function LoginContent() {
                       <SubmitButton
                         formAction={handleSignUp}
                         className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-                        pendingText="Creating account..."
+                        pendingText={t('auth.creatingAccount')}
                       >
-                        Sign up
+                        {t('auth.signUp')}
                       </SubmitButton>
                       
                       <Link
                         href={`/auth${returnUrl ? `?returnUrl=${returnUrl}` : ''}`}
                         className="flex h-12 items-center justify-center w-full text-center rounded-full border border-border bg-background hover:bg-accent/20 transition-all"
                       >
-                        Back to sign in
+                        {t('auth.backToSignIn')}
                       </Link>
                     </>
                   )}
@@ -442,7 +456,7 @@ function LoginContent() {
                       onClick={() => setForgotPasswordOpen(true)}
                       className="text-sm text-primary hover:underline"
                     >
-                      Forgot password?
+                      {t('auth.forgotPassword')}
                     </button>
                   </div>
                 )}
@@ -451,9 +465,12 @@ function LoginContent() {
               <div className="mt-8 text-center text-xs text-muted-foreground">
                 By continuing, you agree to our{' '}
                 <Link href="/terms" className="text-primary hover:underline">
-                  Terms of Service
+                  {t('auth.terms')}
                 </Link>{' '}
-                and{' '}<Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+                and{' '}
+                <Link href="/privacy" className="text-primary hover:underline">
+                  {t('auth.privacy')}
+                </Link>
               </div>
             </div>
           </div>
@@ -465,7 +482,7 @@ function LoginContent() {
         <DialogContent className="sm:max-w-md rounded-xl bg-[#F3F4F6] dark:bg-[#F9FAFB]/[0.02] border border-border">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-medium">Reset Password</DialogTitle>
+              <DialogTitle className="text-xl font-medium">{t('auth.resetPassword')}</DialogTitle>
               <button 
                 onClick={() => setForgotPasswordOpen(false)}
                 className="rounded-full p-1 hover:bg-muted transition-colors"
@@ -474,7 +491,7 @@ function LoginContent() {
               </button>
             </div>
             <DialogDescription className="text-muted-foreground">
-              Enter your email address and we'll send you a link to reset your password.
+              {t('auth.resetPasswordDesc')}
             </DialogDescription>
           </DialogHeader>
           
@@ -509,14 +526,14 @@ function LoginContent() {
                 type="submit"
                 className="h-12 px-6 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
               >
-                Send Reset Link
+                {t('auth.sendResetLink')}
               </button>
               <button
                 type="button"
                 onClick={() => setForgotPasswordOpen(false)}
                 className="h-12 px-6 rounded-full border border-border bg-background hover:bg-accent/20 transition-all"
               >
-                Cancel
+                {t('auth.cancel')}
               </button>
             </DialogFooter>
           </form>

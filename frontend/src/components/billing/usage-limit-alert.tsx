@@ -5,6 +5,7 @@ import { PlanComparison } from "./plan-comparison";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { isLocalMode } from "@/lib/config";
+import { useTranslation } from "@/i18n/useTranslation";
 
 interface BillingErrorAlertProps {
   message?: string;
@@ -25,6 +26,7 @@ export function BillingErrorAlert({
   className = "",
   isOpen
 }: BillingErrorAlertProps) {
+  const { t } = useTranslation();
   const returnUrl = typeof window !== 'undefined' ? window.location.href : '';
   
   // Skip rendering in local development mode
@@ -85,10 +87,10 @@ export function BillingErrorAlert({
                       <AlertCircle className="h-4 w-4 text-destructive" />
                     </div>
                     <h2 id="billing-modal-title" className="text-lg font-medium tracking-tight mb-1">
-                      Usage Limit Reached
+                      {t('billing.usageLimitReached')}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      {message || "You've reached your monthly usage limit."}
+                      {message || t('billing.usageMessage', { used: currentUsage || 0, limit: limit || 0 })}
                     </p>
                   </div>
 
@@ -97,11 +99,11 @@ export function BillingErrorAlert({
                     <div className="mb-4 p-3 bg-muted/30 border border-border rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <div>
-                          <p className="text-xs font-medium text-muted-foreground">Usage</p>
+                          <p className="text-xs font-medium text-muted-foreground">{t('billing.usage')}</p>
                           <p className="text-base font-semibold">{(currentUsage * 60).toFixed(0)}m</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-medium text-muted-foreground">Limit</p>
+                          <p className="text-xs font-medium text-muted-foreground">{t('billing.limit')}</p>
                           <p className="text-base font-semibold">{(limit * 60).toFixed(0)}m</p>
                         </div>
                       </div>
@@ -132,7 +134,7 @@ export function BillingErrorAlert({
                       className="w-full text-muted-foreground hover:text-foreground text-xs h-7"
                       onClick={onDismiss}
                     >
-                      Continue with Current Plan
+                      {t('billing.continueWithCurrentPlan')}
                     </Button>
                   )}
                 </div>

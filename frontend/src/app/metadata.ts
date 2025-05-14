@@ -5,17 +5,17 @@ export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
   keywords: [
-    "Kortix Suna",
+    "CloudOne Helios",
     "AI",
     "Agent",
   ],
   authors: [
     {
-      name: "Kortix AI Corp",
-      url: "https://kortix.ai",
+      name: "CloudOne Corp",
+      url: "https://www.myaiportal.net",
     },
   ],
-  creator: "Kortix AI Corp",
+  creator: "CloudOne Corp",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    creator: "@kortixai",
+    creator: "@cloudone-ai",
   },
   robots: {
     index: true,

@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   description: "Helios is a fully open source AI assistant that helps you accomplish real-world tasks with ease. Through natural conversation, Helios becomes your digital companion for research, data analysis, and everyday challenges.",
   keywords: ["AI", "artificial intelligence", "browser automation", "web scraping", "file management", "AI assistant", "open source", "research", "data analysis"],
-  authors: [{ name: "CloudOne Team", url: "https://helios.myaiportal.com" }],
+  authors: [{ name: "CloudOne Team", url: "https://helios.myaiportal.net" }],
   creator: "CloudOne Team - Wang Zhigang",
   publisher: "CloudOne Team - Wang Zhigang",
   category: "Technology",
