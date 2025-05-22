@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Link from "next/link";
 import { FlickeringGrid } from "@/components/home/ui/flickering-grid";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -12,48 +12,50 @@ function LegalContent() {
   const router = useRouter();
   const pathname = usePathname();
   
-  // Get tab from URL or default to "terms"
+  // 使用 ref 来跟踪是否已经进行了初始化，避免初始渲染时的不必要更新
+  const initializedRef = useRef(false);
+  
+  // 从 URL 获取当前标签，默认为 "terms"
   const tabParam = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState<"terms" | "privacy">(
-    (tabParam === "terms" || tabParam === "privacy") ? tabParam : "terms"
-  );
+  const validTabParam = (tabParam === "terms" || tabParam === "privacy") ? tabParam : "terms";
+  
+  // 使用状态管理活动标签
+  const [activeTab, setActiveTab] = useState<"terms" | "privacy">(validTabParam);
   
   const tablet = useMediaQuery("(max-width: 1024px)");
   const [mounted, setMounted] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  // Function to update URL without refreshing the page
-  const updateUrl = (tab: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("tab", tab);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
+  // 仅在组件挂载时执行一次的初始化
   useEffect(() => {
     setMounted(true);
+    initializedRef.current = true;
     
-    // Update the URL if it doesn't match the active tab
-    if (tabParam !== activeTab) {
-      updateUrl(activeTab);
+    // 如果 URL 中没有有效的标签参数，则设置默认值
+    if (tabParam !== "terms" && tabParam !== "privacy") {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "terms");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, [tabParam, activeTab, updateUrl]);
-  
-  // Update the URL when the tab changes
+  }, []); // 空依赖数组确保只在挂载时运行一次
+
+  // 处理标签切换 - 直接更新 URL，状态会通过 URL 变化自动更新
+  const handleTabChange = useCallback((tab: "terms" | "privacy") => {
+    if (tab === activeTab) return; // 如果点击当前活动标签，不做任何操作
+    
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [activeTab, searchParams, router, pathname]);
+
+  // 当 URL 参数变化时更新活动标签
   useEffect(() => {
-    updateUrl(activeTab);
-  }, [activeTab, updateUrl]);
-  
-  // Update the active tab when URL changes
-  useEffect(() => {
+    if (!initializedRef.current) return; // 跳过初始渲染
+    
     if (tabParam === "terms" || tabParam === "privacy") {
       setActiveTab(tabParam);
     }
-  }, [tabParam]);
-
-  // Handle tab change
-  const handleTabChange = (tab: "terms" | "privacy") => {
-    setActiveTab(tab);
-  };
+  }, [tabParam]); // 只依赖于 tabParam
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen w-full">
@@ -112,7 +114,7 @@ function LegalContent() {
             <div className="flex justify-center mb-8">
               <div className="flex space-x-4 border-b border-border">
                 <button
-                  onClick={() => handleTabChange("terms")}
+                  onClick={() => activeTab !== "terms" && handleTabChange("terms")}
                   className={`pb-2 px-4 ${
                     activeTab === "terms"
                       ? "border-b-2 border-secondary font-medium text-secondary"
@@ -122,7 +124,7 @@ function LegalContent() {
                   Terms of Service
                 </button>
                 <button
-                  onClick={() => handleTabChange("privacy")}
+                  onClick={() => activeTab !== "privacy" && handleTabChange("privacy")}
                   className={`pb-2 px-4 ${
                     activeTab === "privacy"
                       ? "border-b-2 border-secondary font-medium text-secondary"
@@ -142,13 +144,13 @@ function LegalContent() {
                     <p className="text-sm text-muted-foreground mb-6">Last updated: {new Date().toLocaleDateString()}</p>
                     
                     <h3 className="text-lg font-medium tracking-tight">Terms of Service & Privacy Policy</h3>
-                    <p className="text-muted-foreground text-balance mb-4">Last updated and effective date: 13 August 2024</p>
+                    <p className="text-muted-foreground text-balance mb-4">Legal Disclosures (Specified Commercial Transactions Act)</p>
 
-                    <p className="text-muted-foreground text-balance mb-6">PLEASE READ THESE TERMS OF USE ("AGREEMENT" OR "TERMS OF USE" or "TERMS OF SERVICE" or "TERMS AND CONDITIONS") CAREFULLY BEFORE USING THE SERVICES OFFERED BY CloudOne AI Corp (701 Tillery Street Unit 12-2521 Austin, Texas 78702, United States). THIS AGREEMENT SETS FORTH THE LEGALLY BINDING TERMS AND CONDITIONS FOR YOUR USE OF THE Helios WEBSITE AND ALL RELATED SERVICES.</p>
+                    <p className="text-muted-foreground text-balance mb-6">PLEASE READ THESE TERMS OF USE ("AGREEMENT" OR "TERMS OF USE" or "TERMS OF SERVICE" or "TERMS AND CONDITIONS") CAREFULLY BEFORE USING THE SERVICES OFFERED BY CloudOne Corp (Room 506 4-17-7 Higashi-Ueno, Taito-ku, Tokyo 110-0015, Japan). THIS AGREEMENT SETS FORTH THE LEGALLY BINDING TERMS AND CONDITIONS FOR YOUR USE OF THE Helios WEBSITE AND ALL RELATED SERVICES.</p>
 
                     <h3 className="text-lg font-medium tracking-tight">Definitions</h3>
                     <ul className="text-muted-foreground space-y-1 mb-6">
-                      <li>"Company" refers to CloudOne AI Corp (701 Tillery Street Unit 12-2521 Austin, Texas 78702, United States).</li>
+                      <li>"Company" refers to CloudOne Corp (Room 506 4-17-7 Higashi-Ueno, Taito-ku, Tokyo 110-0015, Japan).</li>
                       <li>"Site" refers to the Helios website, including any related features, content, or applications offered from time to time by the Company.</li>
                       <li>"Service" refers to the Helios website and all related services provided by the Company, including the AI-powered agent that helps you accomplish real-world tasks.</li>
                       <li>"User" refers to any individual or entity using the Site or Service.</li>

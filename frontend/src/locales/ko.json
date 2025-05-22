@@ -135,6 +135,10 @@
   "billing": {
     "usageLimitReached": "사용 한도에 도달했습니다",
     "usageMessage": "무료 플랜에서 {used}분을 사용하셨습니다. 월별 한도는 {limit}분입니다.",
+    "approachingUsageLimit": "사용 한도에 근접하고 있습니다",
+    "approachingUsageMessage": "월간 한도의 {percentage}%를 사용하셨습니다",
+    "usageLimitExceeded": "월간 사용 한도를 초과했습니다",
+    "usageLimitExceededMessage": "월간 사용 한도에 도달했습니다. 계속하려면 플랜을 업그레이드해 주세요.",
     "usage": "사용량",
     "limit": "한도",
     "free": "무료",

@@ -151,6 +151,10 @@
   "billing": {
     "usageLimitReached": "已达到使用限制",
     "usageMessage": "您已在免费计划中使用了 {used} 分钟。每月限制为 {limit} 分钟。",
+    "approachingUsageLimit": "接近使用限制",
+    "approachingUsageMessage": "本月使用时长已经超过 {percentage}%",
+    "usageLimitExceeded": "月度使用限额已用完",
+    "usageLimitExceededMessage": "本月使用时长额度已经用完，可选择进行Plan升级",
     "usage": "使用量",
     "limit": "限制",
     "free": "免费",

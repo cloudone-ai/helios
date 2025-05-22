@@ -151,6 +151,10 @@
   "billing": {
     "usageLimitReached": "使用制限に達しました",
     "usageMessage": "無料プランで{used}分を使用しました。月間制限は{limit}分です。",
+    "approachingUsageLimit": "使用制限に近づいています",
+    "approachingUsageMessage": "月間制限の{percentage}%を使用しました",
+    "usageLimitExceeded": "月間使用制限を超過しました",
+    "usageLimitExceededMessage": "月間使用制限に達しました。継続するにはプランをアップグレードしてください。",
     "usage": "使用量",
     "limit": "制限",
     "free": "無料",

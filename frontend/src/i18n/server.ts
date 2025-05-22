@@ -1,4 +1,5 @@
-import { cookies } from 'next/headers';
+// 使用js-cookie替代next/headers
+import Cookies from 'js-cookie';
 import { defaultLocale } from './config';
 import en from '../locales/en.json';
 import zh from '../locales/zh.json';
@@ -22,10 +23,17 @@ const resources: Record<string, any> = {
 
 export function getTranslations() {
   // 尝试从 cookie 获取语言设置
-  const cookieStore = cookies();
-  // 直接使用默认语言，避免 cookie 类型问题
-  // const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
-  const cookieLocale = defaultLocale;
+  // 使用js-cookie获取cookie值
+  let cookieLocale;
+  
+  // 在服务器端和客户端都能正常工作
+  if (typeof window !== 'undefined') {
+    // 客户端环境
+    cookieLocale = Cookies.get('NEXT_LOCALE');
+  } else {
+    // 服务器端环境，使用默认语言
+    cookieLocale = defaultLocale;
+  }
   
   // 确定使用的语言
   const locale = cookieLocale && resources[cookieLocale] ? cookieLocale : defaultLocale;

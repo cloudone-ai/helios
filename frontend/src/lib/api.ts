@@ -606,10 +606,23 @@ export const streamAgent = (agentRunId: string, callbacks: {
   // Check if this agent run is known to be non-running
   if (nonRunningAgentRuns.has(agentRunId)) {
     console.log(`[STREAM] Agent run ${agentRunId} is known to be non-running, not creating stream`);
-    // Notify the caller immediately
+    // Notify the caller immediately with more specific information if available
     setTimeout(() => {
-      callbacks.onError(`Agent run ${agentRunId} is not running`);
-      callbacks.onClose();
+      // 尝试获取更细节的状态信息，但不要阻塞或抛出错误
+      getAgentStatus(agentRunId)
+        .then(status => {
+          if (status && status.status) {
+            callbacks.onError(`Agent run ${agentRunId} is not running (status: ${status.status})`);
+          } else {
+            callbacks.onError(`Agent run ${agentRunId} is not running`);
+          }
+          callbacks.onClose();
+        })
+        .catch(() => {
+          // 如果状态检查失败，使用通用消息
+          callbacks.onError(`Agent run ${agentRunId} is not running`);
+          callbacks.onClose();
+        });
     }, 0);
     
     // Return a no-op cleanup function
@@ -629,11 +642,53 @@ export const streamAgent = (agentRunId: string, callbacks: {
     const setupStream = async () => {
       // First verify the agent is actually running
       try {
+        // 首先检查这个代理运行是否已经在非运行集合中
+        if (nonRunningAgentRuns.has(agentRunId)) {
+          console.log(`[STREAM] Agent run ${agentRunId} is already known to be non-running, not creating stream`);
+          // 不输出错误，而是静默关闭
+          callbacks.onClose();
+          return;
+        }
+        
         const status = await getAgentStatus(agentRunId);
+        
+        // 检查是否是计费错误（通过错误消息判断）
+        if (status.error && typeof status.error === 'string') {
+          const errorMessage = status.error;
+          const isBillingError = 
+            errorMessage.includes('402') || 
+            errorMessage.includes('407') || 
+            errorMessage.includes('Payment Required') || 
+            errorMessage.includes('usage limit');
+            
+          if (isBillingError) {
+            console.log(`[STREAM] Billing error detected for agent run ${agentRunId}:`, errorMessage);
+            // 创建一个符合错误对象的结构，并添加计费相关信息
+            const billingError = new Error(errorMessage) as Error & {
+              status: number;
+              usage_percentage: number;
+            };
+            billingError.status = errorMessage.includes('402') ? 402 : 407;
+            billingError.usage_percentage = errorMessage.includes('80%') ? 80 : 100;
+            // 将这个代理运行添加到非运行集合中
+            nonRunningAgentRuns.add(agentRunId);
+            // 触发事件而不是直接调用回调
+            window.dispatchEvent(new CustomEvent('billing-error', { detail: billingError }));
+            callbacks.onClose();
+            return;
+          }
+        }
+        
         if (status.status !== 'running') {
           console.log(`[STREAM] Agent run ${agentRunId} is not running (status: ${status.status}), not creating stream`);
           nonRunningAgentRuns.add(agentRunId);
-          callbacks.onError(`Agent run ${agentRunId} is not running (status: ${status.status})`);
+          // 不输出错误，而是触发事件
+          window.dispatchEvent(new CustomEvent('agent-status', { 
+            detail: { 
+              id: agentRunId,
+              status: status.status 
+            }
+          }));
           callbacks.onClose();
           return;
         }

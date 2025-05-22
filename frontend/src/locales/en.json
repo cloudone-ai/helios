@@ -151,6 +151,10 @@
   "billing": {
     "usageLimitReached": "Usage limit reached",
     "usageMessage": "You've used {used} minutes on the free plan. Monthly limit is {limit} minutes.",
+    "approachingUsageLimit": "Approaching usage limit",
+    "approachingUsageMessage": "You've used {percentage}% of your monthly limit",
+    "usageLimitExceeded": "Monthly usage limit exceeded",
+    "usageLimitExceededMessage": "You've reached your monthly usage limit. Please upgrade your plan to continue.",
     "usage": "Usage",
     "limit": "Limit",
     "free": "Free",

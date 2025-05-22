@@ -32,7 +32,7 @@ function DashboardContent() {
   const { data: accounts } = useAccounts();
   const personalAccount = accounts?.find(account => account.personal_account);
   const chatInputRef = useRef<ChatInputHandles>(null);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const handleSubmit = async (message: string, options?: { model_name?: string; enable_thinking?: boolean }) => {
     if ((!message.trim() && !(chatInputRef.current?.getPendingFiles().length)) || isSubmitting) return;
@@ -57,6 +57,11 @@ function DashboardContent() {
         files.forEach(file => {
           formData.append('files', file);
         });
+        
+        // 添加用户语言设置
+        const userLanguage = locale || 'en';
+        formData.append('language', userLanguage);
+        console.log(`Adding user language to request: ${userLanguage}`);
 
         // Add any additional options
         if (options) {

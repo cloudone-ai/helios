@@ -11,6 +11,8 @@ interface BillingErrorAlertProps {
   message?: string;
   currentUsage?: number;
   limit?: number;
+  usagePercentage?: number;
+  isWarning?: boolean; // 标记是警告还是错误
   accountId: string | null | undefined;
   onDismiss?: () => void;
   className?: string;
@@ -21,13 +23,15 @@ export function BillingErrorAlert({
   message,
   currentUsage,
   limit,
+  usagePercentage,
+  isWarning = false,
   accountId,
   onDismiss,
   className = "",
   isOpen
 }: BillingErrorAlertProps) {
   const { t } = useTranslation();
-  const returnUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const returnUrl = typeof window !== 'undefined' ? window.location.href.replace('127.0.0.1', 'localhost') : '';
   
   // Skip rendering in local development mode
   if (isLocalMode() || !isOpen) return null;
@@ -83,14 +87,16 @@ export function BillingErrorAlert({
 
                   {/* Header */}
                   <div className="text-center mb-4">
-                    <div className="inline-flex items-center justify-center p-1.5 bg-destructive/10 rounded-full mb-2">
-                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    <div className={`inline-flex items-center justify-center p-1.5 ${isWarning ? 'bg-amber-500/10' : 'bg-destructive/10'} rounded-full mb-2`}>
+                      <AlertCircle className={`h-4 w-4 ${isWarning ? 'text-amber-500' : 'text-destructive'}`} />
                     </div>
                     <h2 id="billing-modal-title" className="text-lg font-medium tracking-tight mb-1">
-                      {t('billing.usageLimitReached')}
+                      {isWarning ? t('billing.approachingUsageLimit') : t('billing.usageLimitReached')}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      {message || t('billing.usageMessage', { used: currentUsage || 0, limit: limit || 0 })}
+                      {message || (isWarning 
+                        ? t('billing.approachingUsageMessage', { percentage: Math.round(usagePercentage || 0) })
+                        : t('billing.usageLimitExceededMessage'))}
                     </p>
                   </div>
 
@@ -110,9 +116,9 @@ export function BillingErrorAlert({
                       <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((currentUsage / limit) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(usagePercentage || (currentUsage && limit ? (currentUsage / limit) * 100 : 0), 100)}%` }}
                           transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-                          className="h-full bg-destructive rounded-full"
+                          className={`h-full ${isWarning ? 'bg-amber-500' : 'bg-destructive'} rounded-full`}
                         />
                       </div>
                     </div>

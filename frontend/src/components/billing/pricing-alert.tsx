@@ -22,7 +22,7 @@ interface PricingAlertProps {
 }
 
 export function PricingAlert({ open, onOpenChange, closeable = true, accountId }: PricingAlertProps) {
-  const returnUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const returnUrl = typeof window !== 'undefined' ? window.location.href.replace('127.0.0.1', 'localhost') : '';
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 

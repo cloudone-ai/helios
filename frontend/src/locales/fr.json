@@ -135,6 +135,10 @@
   "billing": {
     "usageLimitReached": "Limite d'utilisation atteinte",
     "usageMessage": "Vous avez utilisé {used} minutes sur le plan Gratuit. La limite est de {limit} minutes par mois.",
+    "approachingUsageLimit": "Approche de la limite d'utilisation",
+    "approachingUsageMessage": "Vous avez utilisé {percentage}% de votre limite mensuelle",
+    "usageLimitExceeded": "Limite d'utilisation mensuelle dépassée",
+    "usageLimitExceededMessage": "Vous avez atteint votre limite d'utilisation mensuelle. Veuillez mettre à niveau votre plan pour continuer.",
     "usage": "Utilisation",
     "limit": "Limite",
     "free": "Gratuit",

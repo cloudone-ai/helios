@@ -10,6 +10,15 @@ import { toast } from 'sonner';
 import { UnifiedMessage, ParsedContent, ParsedMetadata } from '@/components/thread/types';
 import { safeJsonParse } from '@/components/thread/utils';
 
+// 跟踪已知的非运行代理运行
+// 这个集合在组件实例之间共享，避免重复错误
+// 与 api.ts 中的 nonRunningAgentRuns 集合类似，但在前端组件中维护
+// 这样可以避免在组件级别重复检查已知的失败代理运行
+// 并且可以在组件卸载时清理集合
+// 使用 WeakMap 而不是 Set，这样可以存储额外的状态信息
+// 并且允许垃圾回收器在不再需要时清理条目
+const knownNonRunningAgents = new Map<string, string>();
+
 interface ApiMessageType {
   message_id?: string;
   thread_id?: string;
@@ -291,10 +300,10 @@ export function useAgentStream(callbacks: AgentStreamCallbacks, threadId: string
     }
   }, [status, toolCall, callbacks, finalizeStream, updateStatus]);
 
-  const handleStreamError = useCallback((err: Error | string | Event) => {
+  const handleStreamError = useCallback((err: any) => {
     if (!isMountedRef.current) return;
     
-    // Extract error message
+    // Extract error message from different error types
     let errorMessage = 'Unknown streaming error';
     if (typeof err === 'string') {
       errorMessage = err;
@@ -303,6 +312,60 @@ export function useAgentStream(callbacks: AgentStreamCallbacks, threadId: string
     } else if (err instanceof Event && err.type === 'error') {
        // Standard EventSource errors don't have much detail, might need status check
        errorMessage = 'Stream connection error';
+    }
+    
+    // 检查是否是已知的代理运行失败错误
+    const isAgentNotRunningError = errorMessage.includes('not running') && 
+      (errorMessage.includes('status: failed') || 
+       errorMessage.includes('status: stopped') || 
+       errorMessage.includes('status: completed'));
+       
+    if (isAgentNotRunningError) {
+      // 提取代理运行 ID
+      const runIdMatch = errorMessage.match(/Agent run ([a-f0-9-]+) is not running/);
+      const runId = runIdMatch ? runIdMatch[1] : currentRunIdRef.current;
+      
+      if (runId) {
+        // 将这个代理运行添加到非运行集合中
+        const status = errorMessage.includes('status: failed') ? 'failed' : 
+                      errorMessage.includes('status: stopped') ? 'stopped' : 'completed';
+        knownNonRunningAgents.set(runId, status);
+        
+        // 不输出错误，而是直接完成流
+        console.log(`[useAgentStream] Agent run ${runId} is not running (${status}), finalizing stream`);
+        finalizeStream(status, runId);
+        return;
+      }
+    }
+    
+    // 检查是否是计费错误（402或407状态码）
+    const isBillingError = 
+      (err && typeof err === 'object' && (err.status === 402 || err.status === 407)) || 
+      (errorMessage.includes('402') || errorMessage.includes('407')) || 
+      (errorMessage.includes('Payment Required') || errorMessage.includes('usage limit'));
+      
+    if (isBillingError) {
+      console.log('[useAgentStream] Detected billing error:', err);
+      
+      // 创建一个计费错误对象，确保它包含所需的字段
+      let billingErrorObj;
+      if (err && typeof err === 'object' && err.status) {
+        // 如果错误对象已经有适当的格式，直接使用
+        billingErrorObj = err;
+      } else {
+        // 否则，创建一个新的错误对象
+        billingErrorObj = {
+          status: errorMessage.includes('402') ? 402 : 407,
+          message: errorMessage,
+          usage_percentage: errorMessage.includes('80%') ? 80 : 100
+        };
+      }
+      
+      // 设置错误状态，但使用billing_error状态完成流
+      // 这将触发useBillingError钩子处理计费错误
+      window.dispatchEvent(new CustomEvent('billing-error', { detail: billingErrorObj }));
+      finalizeStream('billing_error');
+      return;
     }
     
     console.error('[useAgentStream] Streaming error:', errorMessage, err);
@@ -314,42 +377,62 @@ export function useAgentStream(callbacks: AgentStreamCallbacks, threadId: string
        finalizeStream('error'); // Finalize with generic error if no runId
        return;
     }
+    
+    // 检查错误消息是否已经表明代理运行失败
+    if (errorMessage.includes('not running') && 
+        (errorMessage.includes('status: failed') || errorMessage.includes('status: stopped'))) {
+      // 如果错误消息已经表明代理运行失败，直接完成流而不需要再次检查状态
+      console.log(`[useAgentStream] Agent run ${runId} is already known to be failed/stopped from error message. Finalizing.`);
+      const status = errorMessage.includes('status: failed') ? 'failed' : 'stopped';
+      finalizeStream(status, runId);
+      return;
+    }
 
-    // Check agent status immediately after an error
-    getAgentStatus(runId)
-      .then(agentStatus => {
-        if (!isMountedRef.current) return; // Check mount status again after async call
-        
-        if (agentStatus.status === 'running') {
-          console.warn(`[useAgentStream] Stream error for ${runId}, but agent is still running. Finalizing with error.`);
-           finalizeStream('error', runId); // Stream failed, even if agent might still be running backend-side
-           toast.warning("Stream interrupted. Agent might still be running.");
-        } else {
-           // Map backend terminal status to hook terminal status
-           const finalStatus = mapAgentStatus(agentStatus.status);
-           console.log(`[useAgentStream] Stream error for ${runId}, agent status is ${agentStatus.status}. Finalizing stream as ${finalStatus}.`);
-           finalizeStream(finalStatus, runId);
-        }
-      })
-      .catch(statusError => {
-        if (!isMountedRef.current) return;
-        
-        const statusErrorMessage = statusError instanceof Error ? statusError.message : String(statusError);
-        console.error(`[useAgentStream] Error checking agent status for ${runId} after stream error: ${statusErrorMessage}`);
-        
-        const isNotFoundError = statusErrorMessage.includes('not found') || 
-                                statusErrorMessage.includes('404') ||
-                                statusErrorMessage.includes('does not exist');
-                                
-        if (isNotFoundError) {
-           console.log(`[useAgentStream] Agent run ${runId} not found after stream error. Finalizing.`);
-           // Revert to agent_not_running for this specific case
-           finalizeStream('agent_not_running', runId);
-        } else {
-           // For other status check errors, finalize with the original stream error
-           finalizeStream('error', runId); 
-        }
-      });
+    // 尝试检查代理状态，但使用 try-catch 块来避免额外的错误
+    try {
+      // Check agent status immediately after an error
+      getAgentStatus(runId)
+        .then(agentStatus => {
+          if (!isMountedRef.current) return; // Check mount status again after async call
+          
+          if (agentStatus.status === 'running') {
+            console.warn(`[useAgentStream] Stream error for ${runId}, but agent is still running. Finalizing with error.`);
+             finalizeStream('error', runId); // Stream failed, even if agent might still be running backend-side
+             toast.warning("Stream interrupted. Agent might still be running.");
+          } else {
+             // Map backend terminal status to hook terminal status
+             const finalStatus = mapAgentStatus(agentStatus.status);
+             console.log(`[useAgentStream] Stream error for ${runId}, agent status is ${agentStatus.status}. Finalizing stream as ${finalStatus}.`);
+             finalizeStream(finalStatus, runId);
+          }
+        })
+        .catch(statusError => {
+          if (!isMountedRef.current) return;
+          
+          const statusErrorMessage = statusError instanceof Error ? statusError.message : String(statusError);
+          
+          // 不再在控制台中输出错误，而是使用警告级别
+          console.warn(`[useAgentStream] Could not check agent status for ${runId} after stream error: ${statusErrorMessage}`);
+          
+          const isNotFoundError = statusErrorMessage.includes('not found') || 
+                                  statusErrorMessage.includes('404') ||
+                                  statusErrorMessage.includes('does not exist') ||
+                                  statusErrorMessage.includes('is not running');
+                                  
+          if (isNotFoundError) {
+             console.log(`[useAgentStream] Agent run ${runId} not found or not running after stream error. Finalizing.`);
+             // Revert to agent_not_running for this specific case
+             finalizeStream('agent_not_running', runId);
+          } else {
+             // For other status check errors, finalize with the original stream error
+             finalizeStream('error', runId); 
+          }
+        });
+    } catch (e) {
+      // 如果在调用 getAgentStatus 时出现错误，也使用适当的状态完成流
+      console.warn(`[useAgentStream] Error initiating status check for ${runId}: ${e}`);
+      finalizeStream('error', runId);
+    }
 
   }, [finalizeStream]);
 
@@ -369,46 +452,61 @@ export function useAgentStream(callbacks: AgentStreamCallbacks, threadId: string
         }
         return;
     }
+    
+    // 检查当前状态，如果已经是终止状态，则不需要再次检查
+    if (status === 'completed' || status === 'stopped' || status === 'failed' || status === 'agent_not_running' || status === 'billing_error') {
+      console.log(`[useAgentStream] Stream closed for ${runId}, but status is already ${status}. Skipping status check.`);
+      return;
+    }
 
-    // Immediately check the agent status when the stream closes unexpectedly
-    // This covers cases where the agent finished but the final message wasn't received,
-    // or if the agent errored out on the backend.
-     getAgentStatus(runId)
-      .then(agentStatus => {
-         if (!isMountedRef.current) return; // Check mount status again
-         
-         console.log(`[useAgentStream] Agent status after stream close for ${runId}: ${agentStatus.status}`);
-         if (agentStatus.status === 'running') {
-           console.warn(`[useAgentStream] Stream closed for ${runId}, but agent is still running. Finalizing with error.`);
-           setError('Stream closed unexpectedly while agent was running.');
-           finalizeStream('error', runId); // Finalize as error for now
-           toast.warning("Stream disconnected. Agent might still be running.");
-         } else {
-           // Map backend terminal status to hook terminal status
-           const finalStatus = mapAgentStatus(agentStatus.status);
-           console.log(`[useAgentStream] Stream closed for ${runId}, agent status is ${agentStatus.status}. Finalizing stream as ${finalStatus}.`);
-           finalizeStream(finalStatus, runId);
-         }
-       })
-       .catch(err => {
-          if (!isMountedRef.current) return;
-          
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          console.error(`[useAgentStream] Error checking agent status for ${runId} after stream close: ${errorMessage}`);
-          
-          const isNotFoundError = errorMessage.includes('not found') || 
-                                  errorMessage.includes('404') ||
-                                  errorMessage.includes('does not exist');
-                                  
-          if (isNotFoundError) {
-             console.log(`[useAgentStream] Agent run ${runId} not found after stream close. Finalizing.`);
-             // Revert to agent_not_running for this specific case
-             finalizeStream('agent_not_running', runId);
+    // 尝试检查代理状态，但使用 try-catch 块来避免额外的错误
+    try {
+      // Immediately check the agent status when the stream closes unexpectedly
+      // This covers cases where the agent finished but the final message wasn't received,
+      // or if the agent errored out on the backend.
+      getAgentStatus(runId)
+        .then(agentStatus => {
+           if (!isMountedRef.current) return; // Check mount status again
+           
+           console.log(`[useAgentStream] Agent status after stream close for ${runId}: ${agentStatus.status}`);
+           if (agentStatus.status === 'running') {
+             console.warn(`[useAgentStream] Stream closed for ${runId}, but agent is still running. Finalizing with error.`);
+             setError('Stream closed unexpectedly while agent was running.');
+             finalizeStream('error', runId); // Finalize as error for now
+             toast.warning("Stream disconnected. Agent might still be running.");
            } else {
-              // For other errors checking status, finalize with generic error
-             finalizeStream('error', runId);
+             // Map backend terminal status to hook terminal status
+             const finalStatus = mapAgentStatus(agentStatus.status);
+             console.log(`[useAgentStream] Stream closed for ${runId}, agent status is ${agentStatus.status}. Finalizing stream as ${finalStatus}.`);
+             finalizeStream(finalStatus, runId);
            }
-       });
+         })
+         .catch(err => {
+            if (!isMountedRef.current) return;
+            
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            // 使用警告级别而不是错误级别
+            console.warn(`[useAgentStream] Could not check agent status for ${runId} after stream close: ${errorMessage}`);
+            
+            const isNotFoundError = errorMessage.includes('not found') || 
+                                    errorMessage.includes('404') ||
+                                    errorMessage.includes('does not exist') ||
+                                    errorMessage.includes('is not running');
+                                    
+            if (isNotFoundError) {
+               console.log(`[useAgentStream] Agent run ${runId} not found or not running after stream close. Finalizing.`);
+               // Revert to agent_not_running for this specific case
+               finalizeStream('agent_not_running', runId);
+             } else {
+                // For other errors checking status, finalize with generic error
+               finalizeStream('error', runId);
+             }
+         });
+    } catch (e) {
+      // 如果在调用 getAgentStatus 时出现错误，也使用适当的状态完成流
+      console.warn(`[useAgentStream] Error initiating status check for ${runId} after stream close: ${e}`);
+      finalizeStream('error', runId);
+    }
 
   }, [status, finalizeStream]); // Include status
 
@@ -456,13 +554,55 @@ export function useAgentStream(callbacks: AgentStreamCallbacks, threadId: string
      currentRunIdRef.current = runId; // Set the ref immediately
 
      try {
+       // 首先检查这个代理运行是否已知是非运行状态
+       if (knownNonRunningAgents.has(runId)) {
+         console.log(`[useAgentStream] Agent run ${runId} is already known to be non-running (status: ${knownNonRunningAgents.get(runId)}), skipping stream setup`);
+         // 不设置错误消息，直接完成流
+         finalizeStream(knownNonRunningAgents.get(runId) || 'agent_not_running', runId);
+         return;
+       }
+       
        // *** Crucial check: Verify agent is running BEFORE connecting ***
        const agentStatus = await getAgentStatus(runId);
        if (!isMountedRef.current) return; // Check mount status after async call
 
+       // 检查是否有错误信息，可能是计费错误
+       if (agentStatus.error) {
+         console.warn(`[useAgentStream] Agent run ${runId} has error: ${agentStatus.error}`);
+         
+         // 检查是否是计费错误
+         const errorMessage = String(agentStatus.error);
+         const isBillingError = 
+           errorMessage.includes('402') || 
+           errorMessage.includes('407') || 
+           errorMessage.includes('Payment Required') || 
+           errorMessage.includes('usage limit');
+         
+         if (isBillingError) {
+           console.log('[useAgentStream] Detected billing error:', errorMessage);
+           // 创建一个包含计费信息的错误对象
+           const billingError = {
+             status: errorMessage.includes('402') ? 402 : 407,
+             message: errorMessage,
+             usage_percentage: errorMessage.includes('80%') ? 80 : 100
+           };
+           setError(errorMessage);
+           // 使用billing_error状态完成流，这样会触发useBillingError钩子
+           finalizeStream('billing_error', runId);
+           return;
+         } else {
+           // 其他错误
+           setError(errorMessage);
+           finalizeStream('error', runId);
+           return;
+         }
+       }
+
        if (agentStatus.status !== 'running') {
-         console.warn(`[useAgentStream] Agent run ${runId} is not in running state (status: ${agentStatus.status}). Cannot start stream.`);
-         setError(`Agent run is not running (status: ${agentStatus.status})`);
+         console.log(`[useAgentStream] Agent run ${runId} is not in running state (status: ${agentStatus.status}). Cannot start stream.`);
+         // 将这个代理运行添加到非运行集合中
+         knownNonRunningAgents.set(runId, agentStatus.status);
+         // 不设置错误消息，而是直接完成流
          finalizeStream(mapAgentStatus(agentStatus.status) || 'agent_not_running', runId);
          return;
        }

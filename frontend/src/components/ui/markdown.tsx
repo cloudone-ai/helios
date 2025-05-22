@@ -19,9 +19,33 @@ function parseMarkdownIntoBlocks(markdown: string): string[] {
 }
 
 function extractLanguage(className?: string): string {
-  if (!className) return "plaintext";
+  if (!className) return "txt";
   const match = className.match(/language-(\w+)/);
-  return match ? match[1] : "plaintext";
+  
+  // 获取语言标识符
+  const lang = match ? match[1] : "txt";
+  
+  // 语言映射表 - 与 code-block.tsx 中保持一致
+  const languageMap: Record<string, string> = {
+    'plaintext': 'txt',
+    'text': 'txt',
+    'plain': 'txt',
+    'js': 'javascript',
+    'ts': 'typescript',
+    'py': 'python',
+    'rb': 'ruby',
+    'md': 'markdown',
+    'sh': 'shell',
+    'yml': 'yaml'
+  };
+  
+  // 如果在映射表中，使用映射的值
+  if (languageMap[lang.toLowerCase()]) {
+    return languageMap[lang.toLowerCase()];
+  }
+  
+  // 否则返回原始值
+  return lang;
 }
 
 const INITIAL_COMPONENTS: Partial<Components> = {

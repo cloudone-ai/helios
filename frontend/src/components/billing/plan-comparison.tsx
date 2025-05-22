@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { setupNewSubscription } from "@/lib/actions/billing";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { RedirectSubmitButton } from "@/components/ui/redirect-submit-button";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/home";
 import { isLocalMode } from "@/lib/config";
@@ -48,7 +49,7 @@ interface PlanComparisonProps {
 
 export function PlanComparison({
   accountId,
-  returnUrl = typeof window !== 'undefined' ? window.location.href : '',
+  returnUrl = typeof window !== 'undefined' ? window.location.href.replace('127.0.0.1', 'localhost') : '',
   isManaged = true,
   onPlanSelect,
   className = "",
@@ -223,22 +224,23 @@ export function PlanComparison({
               <input type="hidden" name="returnUrl" value={returnUrl} />
               <input type="hidden" name="planId" value={SUBSCRIPTION_PLANS[tier.name.toUpperCase() as keyof typeof SUBSCRIPTION_PLANS]} />
               {isManaged ? (
-                <SubmitButton
-                  pendingText="..."
+                <RedirectSubmitButton
+                  pendingText={t('billing.processing')}
                   formAction={setupNewSubscription}
-                  // disabled={isCurrentPlan}
+                  disabled={isCurrentPlan}
                   className={cn(
                     "w-full font-medium transition-colors",
                     isCompact 
                       ? "h-7 rounded-md text-xs" 
                       : "h-10 rounded-full text-sm",
                     isCurrentPlan 
-                      ? "bg-muted text-muted-foreground hover:bg-muted" 
+                      ? "bg-muted text-muted-foreground hover:bg-muted pointer-events-none" 
                       : tier.buttonColor
                   )}
+                  onClick={isCurrentPlan ? (e) => e.preventDefault() : undefined}
                 >
                   {isCurrentPlan ? t('billing.currentPlan') : (tier.name === "Free" ? tier.buttonText : t('billing.upgrade'))}
-                </SubmitButton>
+                </RedirectSubmitButton>
               ) : (
                 <Button
                   className={cn(
@@ -247,11 +249,11 @@ export function PlanComparison({
                       ? "h-7 rounded-md text-xs" 
                       : "h-10 rounded-full text-sm",
                     isCurrentPlan 
-                      ? "bg-muted text-muted-foreground hover:bg-muted" 
+                      ? "bg-muted text-muted-foreground hover:bg-muted pointer-events-none" 
                       : tier.buttonColor
                   )}
                   disabled={isCurrentPlan}
-                  onClick={() => onPlanSelect?.(SUBSCRIPTION_PLANS[tier.name.toUpperCase() as keyof typeof SUBSCRIPTION_PLANS])}
+                  onClick={isCurrentPlan ? (e) => e.preventDefault() : () => onPlanSelect?.(SUBSCRIPTION_PLANS[tier.name.toUpperCase() as keyof typeof SUBSCRIPTION_PLANS])}
                 >
                   {isCurrentPlan ? t('billing.currentPlan') : (tier.name === "Free" ? tier.buttonText : t('billing.upgrade'))}
                 </Button>

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { SubmitButton } from "../ui/submit-button";
+import { SubmitButtonWithRedirect } from "../ui/submit-button-with-redirect";
 import { manageSubscription } from "@/lib/actions/billing";
 import { PlanComparison, SUBSCRIPTION_PLANS } from "../billing/plan-comparison";
 import { isLocalMode } from "@/lib/config";
@@ -127,17 +127,15 @@ export default async function AccountBillingStatus({ accountId, returnUrl }: Pro
                     />
 
                     {/* Manage Subscription Button */}
-                    <form>
+                    <SubmitButtonWithRedirect
+                        pendingText={t('billing.loading')}
+                        formAction={manageSubscription}
+                        className="w-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+                    >
                         <input type="hidden" name="accountId" value={accountId} />
                         <input type="hidden" name="returnUrl" value={returnUrl} />
-                        <SubmitButton
-                            pendingText={t('billing.loading')}
-                            formAction={manageSubscription}
-                            className="w-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
-                        >
-                            {t('billing.manageSubscription')}
-                        </SubmitButton>
-                    </form>
+                        {t('billing.manageSubscription')}
+                    </SubmitButtonWithRedirect>
                 </>
             ) : (
                 <>
@@ -163,17 +161,15 @@ export default async function AccountBillingStatus({ accountId, returnUrl }: Pro
                     />
 
                     {/* Manage Subscription Button */}
-                    <form>
+                    <SubmitButtonWithRedirect
+                        pendingText={t('billing.loading')}
+                        formAction={manageSubscription}
+                        className="w-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+                    >
                         <input type="hidden" name="accountId" value={accountId} />
                         <input type="hidden" name="returnUrl" value={returnUrl} />
-                        <SubmitButton
-                            pendingText={t('billing.loading')}
-                            formAction={manageSubscription}
-                            className="w-full bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
-                        >
-                            {t('billing.manageSubscription')}
-                        </SubmitButton>
-                    </form>
+                        {t('billing.manageSubscription')}
+                    </SubmitButtonWithRedirect>
                 </>
             )}
         </div>
